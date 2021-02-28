@@ -1,0 +1,32 @@
+stimer 3s
+stimer 03
+stimer 00:03
+stimer 4m3s
+stimer 4m
+stimer 04:03
+stimer 04:00
+stimer 5h
+stimer 5h3s
+stimer 5h4m3s
+stimer 5h4m
+stimer 05:00:00
+stimer 05:00:03
+stimer 05:04:00
+stimer 05:04:03
+stimer 5:05
+stimer :04
+stimer 4
+
+stimer
+stimer --default=10m
+stimer --save 5h4m
+stimer --save --name "some name" 5h4m
+stimer --save-only 5h4m
+stimer --list
+stimer --list 3h+
+stimer --list 3h-
+stimer --list 3h*
+stimer --list 3h
+stimer --remove "some name"
+stimer --remove 3
+stimer --remove-all
