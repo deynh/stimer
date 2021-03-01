@@ -25,10 +25,10 @@ class STimeData:
     @property
     def clock(self):
         minutes = self._seconds / 60
-        secs_left = int(self._seconds % 60)
+        secs_left = int(round(self._seconds % 60))
         hours = minutes / 60
-        mins_left = int(minutes % 60)
-        hours_left = int(hours)
+        mins_left = int(round(minutes % 60))
+        hours_left = int(round(hours))
         clock_format = []
         clock_format.append(str(hours_left))
         clock_format.append(str(mins_left))
