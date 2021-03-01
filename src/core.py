@@ -43,8 +43,9 @@ class STimeData:
 
 
 class STimer:
-    def __init__(self, duration):
+    def __init__(self, duration, up=False):
         self.duration = self.parse_duration(duration)
+        self.up = up
         self._start_time = None
 
     def elapsed(self, time_format=TimeFormat.SECONDS):
@@ -55,6 +56,8 @@ class STimer:
         return stime(time_format)
 
     def remaining(self, time_format=TimeFormat.SECONDS):
+        if self.duration is None:
+            return None
         secs_remaining = self.duration - (self.elapsed() or 0)
         stime = STimeData(secs_remaining)
         return stime(time_format)
@@ -64,6 +67,8 @@ class STimer:
 
     def parse_duration(self, duration):
         # TODO: Match decimel fractions for character format
+        if duration is None:
+            return None
         char_regex = r"(?i)^(((?=\d+[hms])((\d*[hms])|(\d*[ms])|(\d*[s]))){1,3})$"
         clock_regex = r"^(((?=((:)|(\d+)))(:?\d*){1,3})|((?=((\d+)|(\.)))\d*\.\d*))$"
         char_pattern = re.compile(char_regex)
@@ -98,7 +103,8 @@ class STimer:
                 seconds = seconds + float(secs)
         elif clock_match:
             logging.debug("Duration matched clock format.")
-            duration_splits = duration.rsplit(":")
+            duration_splits = duration.split(":")
+            duration_splits.reverse()
             if "." in duration_splits[0]:
                 secs_split = duration_splits[0].split(".")
                 if secs_split[0]:

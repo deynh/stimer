@@ -18,7 +18,7 @@ stimer :04
 stimer 4
 
 stimer
-stimer --default=10m
+stimer --up
 stimer --save 5h4m
 stimer --save --name "some name" 5h4m
 stimer --save-only 5h4m
@@ -27,6 +27,9 @@ stimer --list 3h+
 stimer --list 3h-
 stimer --list 3h*
 stimer --list 3h
+stimer --timer "some name"
+stimer --timer 3
 stimer --remove "some name"
 stimer --remove 3
 stimer --remove-all
+stimer --no-sound
