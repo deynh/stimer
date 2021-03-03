@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/linux,vim,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,vim,python
 
+### Project-specific ###
+stimer.conf
+
 ### Linux ###
 *~
 

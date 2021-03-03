@@ -1,4 +1,5 @@
 import re
+import json
 import logging
 import time
 from enum import Enum
@@ -25,10 +26,15 @@ class STimeData:
     @property
     def clock(self):
         minutes = self._seconds / 60
+        hours_left = int(minutes / 60)
+        mins_left = int((self._seconds / 60) - (60 * hours_left))
         secs_left = int(round(self._seconds % 60))
-        hours = minutes / 60
-        mins_left = int(round(minutes % 60))
-        hours_left = int(round(hours))
+        if secs_left == 60:
+            secs_left = 0
+            mins_left = mins_left + 1
+        if mins_left == 60:
+            mins_left = 0
+            hours_left = hours_left + 1
         clock_format = []
         clock_format.append(str(hours_left))
         clock_format.append(str(mins_left))
@@ -43,10 +49,48 @@ class STimeData:
 
 
 class STimer:
-    def __init__(self, duration, up=False):
-        self.duration = self.parse_duration(duration)
+    def __init__(self, duration=None, up=False, name=None):
+        # TODO: Parse float types duration in parse_duration()
+        self._duration = None
+        if isinstance(duration, float):
+            self._duration = duration
+        else:
+            self._duration = self.parse_duration(duration)
         self.up = up
+        self.name = name
         self._start_time = None
+
+    @classmethod
+    def from_json(cls, json_str):
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            logging.error("JSON timer could not be decoded: " + e)
+            return None
+        duration = None
+        up = False
+        name = None
+        if "duration" in data:
+            duration = data["duration"]
+        if "up" in data:
+            up = data["up"]
+        if "name" in data:
+            name = data["name"]
+        return cls(duration, up, name)
+
+    def to_json(self):
+        data = {
+            "name": self.name,
+            "duration": self.duration(),
+            "up": self.up,
+        }
+        return json.dumps(data)
+
+    def duration(self, time_format=TimeFormat.SECONDS):
+        if self._duration is None:
+            return None
+        stime = STimeData(self._duration)
+        return stime(time_format)
 
     def elapsed(self, time_format=TimeFormat.SECONDS):
         if self._start_time is None:
@@ -56,9 +100,9 @@ class STimer:
         return stime(time_format)
 
     def remaining(self, time_format=TimeFormat.SECONDS):
-        if self.duration is None:
+        if self.duration() is None:
             return None
-        secs_remaining = self.duration - (self.elapsed() or 0)
+        secs_remaining = self.duration() - (self.elapsed() or 0)
         stime = STimeData(secs_remaining)
         return stime(time_format)
 
