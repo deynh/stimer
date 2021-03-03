@@ -24,18 +24,20 @@ def output_timer(timer):
         print("Timer started:")
         if timer.up:
             while timer_continue(timer) is True:
-                print("\r" + timer.elapsed(TimeFormat.CLOCK), end="")
-                sys.stdout.flush()
+                print(
+                    "\r" + timer.elapsed(TimeFormat.CLOCK) + " \x08", end="", flush=True
+                )
         else:
             while timer_continue(timer) is True:
-                print("\r" + timer.remaining(TimeFormat.CLOCK), end="")
-                sys.stdout.flush()
+                print(
+                    "\r" + timer.remaining(TimeFormat.CLOCK) + " \x08",
+                    end="",
+                    flush=True,
+                )
         print()
-        print("Time's up! Control + C to exit.", end="")
-        sys.stdout.flush()
+        print("Time's up! Control + C to exit.", end="", flush=True)
         while True:
-            print("\a", end="")
-            sys.stdout.flush()
+            print("\a", end="", flush=True)
             time.sleep(0.5)
     except KeyboardInterrupt:
         print()
