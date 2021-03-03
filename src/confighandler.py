@@ -10,6 +10,7 @@ CONFIG_SECTIONS = {
 }
 
 
+# TODO: No duplicate names
 def save_timer(timer):
     timer_json = timer.to_json()
     name = None
@@ -19,6 +20,17 @@ def save_timer(timer):
         name = _find_timer_number()
     write_value(name, timer_json, CONFIG_SECTIONS["timers"])
     return name
+
+
+def remove_timer(name):
+    config = _load_config_file()
+    if CONFIG_SECTIONS["timers"] in config:
+        if name in config[CONFIG_SECTIONS["timers"]]:
+            config[CONFIG_SECTIONS["timers"]].pop(name)
+            _write_config_file(config)
+            logging.info("Timer " + name + " removed.")
+            return True
+    return False
 
 
 def load_timer(name):

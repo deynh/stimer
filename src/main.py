@@ -4,7 +4,7 @@ import logging
 import argparse
 
 from core import STimer, TimeFormat
-from confighandler import save_timer, load_timer, get_timers_list
+from confighandler import save_timer, load_timer, get_timers_list, remove_timer
 
 
 def timer_continue(timer):
@@ -48,7 +48,10 @@ def list_timers():
     for timer in timers:
         name = timer[0]
         stimer = timer[1]
-        timer_str = name + " " + stimer.duration(TimeFormat.CLOCK)
+        duration = stimer.duration(TimeFormat.CLOCK)
+        if duration is None:
+            duration = "--"
+        timer_str = name + " " + duration
         if stimer.up:
             timer_str = timer_str + " UP"
         print(timer_str)
@@ -64,18 +67,25 @@ def parse(args):
     elif args.list:
         list_timers()
         sys.exit(0)
+    elif args.remove:
+        removed = remove_timer(args.remove)
+        if removed:
+            print("Timer " + args.remove + " removed.")
+        else:
+            print("Timer " + args.remove + " not found.")
+        sys.exit(0)
     else:
+        if args.duration is None and args.up is False:
+            args.up = True
+            print('No duration specified. Assuming "UP" (stopwatch) mode.')
         timer = STimer(args.duration, args.up)
-    if args.save:
-        if args.name:
-            timer.name = args.name
-        save_timer(timer)
-    if args.save_only:
+    if args.save or args.save_only:
         if args.name:
             timer.name = args.name
         timer_name = save_timer(timer)
         print("Timer saved as timer " + timer_name)
-        sys.exit(0)
+        if args.save_only:
+            sys.exit(0)
 
     timer.start()
     output_timer(timer)
@@ -92,6 +102,7 @@ if __name__ == "__main__":
     save.add_argument("-S", "--save-only", action="store_true")
     save.add_argument("-t", "--timer")
     save.add_argument("-l", "--list", action="store_true")
+    save.add_argument("-r", "--remove")
     parser.add_argument("-n", "--name")
     args = parser.parse_args()
     parse(args)
