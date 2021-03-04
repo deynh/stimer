@@ -84,8 +84,8 @@ def parse(args):
             duration = parse_duration(args.duration)
             if duration is None:
                 print(
-                    'Duration could not be parsed. Duration must be in character format \
-                            "#h#m#s.###" or clock format "##:##:##.###".'
+                    "Duration could not be parsed. Duration must be in character "
+                    'format "#h#m#s.###" or clock format "##:##:##.###".'
                 )
                 sys.exit(0)
         timer = STimer(duration, args.up)

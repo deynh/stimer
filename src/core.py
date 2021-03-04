@@ -49,11 +49,23 @@ class STimeData:
 
 
 def parse_duration(duration):
-    # TODO: Match decimel fractions for character format
+    def to_float(decimel_time: str) -> float:
+        time = 0.0
+        splits = decimel_time.split(".")
+        if splits[0] != "":
+            time = time + float(splits[0])
+        if len(splits) > 1 and splits[1] != "":
+            new_time = "0." + splits[1]
+            time = time + float(new_time)
+        return time
+
     if duration is None:
         return None
-    char_regex = r"(?i)^(((?=\d+[hms])((\d*[hms])|(\d*[ms])|(\d*[s]))){1,3})$"
-    clock_regex = r"^(((?=((:)|(\d+)))(:?\d*){1,3})|((?=((\d+)|(\.)))\d*\.\d*))$"
+    char_regex = (
+        r"(?i)((?=\d+\.?\d*[hms])|(?=\d*\.?\d+[hms]))^((\d*\.?\d*[hms])|"
+        r"(\d*\.?\d*[ms])|((\d+\.?\d*[s]?)|(\d*\.?\d+[s]?))){1,3}$"
+    )
+    clock_regex = r"^((?=((:)|(\d+)))(:?\d*\.?\d*){1,3})$"
     char_pattern = re.compile(char_regex)
     clock_pattern = re.compile(clock_regex)
     char_match = re.match(char_pattern, duration)
@@ -62,48 +74,36 @@ def parse_duration(duration):
     seconds = 0.0
     if char_match:
         logging.debug("Duration matched character format.")
-        hours_pattern = re.compile(r"(?i)\d+[h]")
-        mins_pattern = re.compile(r"(?i)\d+[m]")
-        secs_pattern = re.compile(r"(?i)\d+[s]")
-        secs_only_pattern = re.compile(r"^\d+$")
+        hours_pattern = re.compile(r"(?i)\d*\.?\d*[h]")
+        mins_pattern = re.compile(r"(?i)\d*\.?\d*[m]")
+        secs_pattern = re.compile(r"(?i)\d*\.?\d*[s]?$")
         hours_match = re.search(hours_pattern, duration)
         mins_match = re.search(mins_pattern, duration)
         secs_match = re.search(secs_pattern, duration)
-        secs_only_match = re.match(secs_only_pattern, duration)
 
-        if secs_only_match:
-            secs = secs_only_match[0]
-            seconds = seconds + float(secs)
-            return seconds
         if hours_match:
             hours = hours_match[0][:-1]
-            seconds = seconds + (float(hours) * 60 * 60)
+            hours = to_float(hours)
+            seconds = seconds + (hours * 60 * 60)
         if mins_match:
             mins = mins_match[0][:-1]
-            seconds = seconds + (float(mins) * 60)
+            mins = to_float(mins)
+            seconds = seconds + (mins * 60)
         if secs_match:
-            secs = secs_match[0][:-1]
-            seconds = seconds + float(secs)
+            secs = secs_match[0]
+            if len(secs) > 0 and secs[-1] == "s":
+                secs = secs[:-1]
+            secs = to_float(secs)
+            seconds = seconds + secs
     elif clock_match:
         logging.debug("Duration matched clock format.")
         duration_splits = duration.split(":")
         duration_splits.reverse()
-        if "." in duration_splits[0]:
-            secs_split = duration_splits[0].split(".")
-            if secs_split[0]:
-                secs = secs_split[0]
-                seconds = seconds + float(secs)
-            if secs_split[1]:
-                secs_fraction = secs_split[1]
-                secs_fraction = "0." + secs_fraction
-                seconds = seconds + float(secs_fraction)
-        else:
-            seconds = seconds + float(duration_splits[0])
-        multiplier = 60
-        if len(duration_splits) > 1:
-            for split in duration_splits[1:]:
-                seconds = seconds + (multiplier * float(split))
-                multiplier = multiplier * 60
+        multiplier = 1
+        for split in duration_splits:
+            split = to_float(split)
+            seconds = seconds + (multiplier * split)
+            multiplier = multiplier * 60
     else:
         logging.debug("Duration did not match pattern.")
         return None
@@ -166,3 +166,6 @@ class STimer:
 
     def start(self):
         self._start_time = time.time()
+        logging.debug(
+            "Timer started with duration: " + (str(self.duration()) or "None")
+        )
