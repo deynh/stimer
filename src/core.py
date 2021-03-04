@@ -61,10 +61,8 @@ def parse_duration(duration):
 
     if duration is None:
         return None
-    char_regex = (
-        r"(?i)((?=\d+\.?\d*[hms])|(?=\d*\.?\d+[hms]))^((\d*\.?\d*[hms])|"
-        r"(\d*\.?\d*[ms])|((\d+\.?\d*[s]?)|(\d*\.?\d+[s]?))){1,3}$"
-    )
+
+    char_regex = r"(?i)(?=^[\d\.hms]*[hms][\d\.hms]*$)([\d\.[hms]*[hms][\d\.hms]*){1,3}"
     clock_regex = r"^((?=((:)|(\d+)))(:?\d*\.?\d*){1,3})$"
     char_pattern = re.compile(char_regex)
     clock_pattern = re.compile(clock_regex)

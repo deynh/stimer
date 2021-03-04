@@ -83,7 +83,7 @@ def parse(args):
         else:
             duration = parse_duration(args.duration)
             if duration is None:
-                print(
+                logging.error(
                     "Duration could not be parsed. Duration must be in character "
                     'format "#h#m#s.###" or clock format "##:##:##.###".'
                 )
