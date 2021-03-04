@@ -6,6 +6,19 @@ import argparse
 from core import STimer, TimeFormat, parse_duration
 from confighandler import save_timer, load_timer, get_timers_list, remove_timer
 
+"""
+    TODO:
+        * No duplicate timer names
+        * Output:
+            - progress bar
+            - elapsed time + remaining time
+        * Help output
+        * Better char_regex
+            - 5h2m3m5s
+        * --list filters
+        * default settings
+"""
+
 
 def timer_continue(timer):
     if timer.up:
@@ -19,7 +32,7 @@ def timer_continue(timer):
     return False
 
 
-def output_timer(timer):
+def output_timer(timer, sound=True):
     try:
         print("Timer started:")
         if timer.up:
@@ -35,10 +48,13 @@ def output_timer(timer):
                     flush=True,
                 )
         print()
-        print("Time's up! Control + C to exit.", end="", flush=True)
-        while True:
-            print("\a", end="", flush=True)
-            time.sleep(0.5)
+        if sound:
+            print("Time's up! Control + C to exit.", end="", flush=True)
+            while True:
+                print("\a", end="", flush=True)
+                time.sleep(0.5)
+        else:
+            print("Time's up!")
     except KeyboardInterrupt:
         print()
 
@@ -98,7 +114,7 @@ def parse(args):
             sys.exit(0)
 
     timer.start()
-    output_timer(timer)
+    output_timer(timer, not args.no_sound)
 
 
 if __name__ == "__main__":
@@ -114,6 +130,7 @@ if __name__ == "__main__":
     save.add_argument("-l", "--list", action="store_true")
     save.add_argument("-r", "--remove")
     parser.add_argument("-n", "--name")
+    parser.add_argument("-N", "--no-sound", action="store_true")
     args = parser.parse_args()
     parse(args)
 

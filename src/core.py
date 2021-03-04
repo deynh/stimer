@@ -48,7 +48,7 @@ class STimeData:
         return clock_str
 
 
-def parse_duration(duration):
+def parse_duration(duration: str) -> float:
     def to_float(decimel_time: str) -> float:
         time = 0.0
         splits = decimel_time.split(".")
@@ -110,7 +110,6 @@ def parse_duration(duration):
 
 class STimer:
     def __init__(self, duration: float = None, up: bool = False, name: str = None):
-        # TODO: Parse float types duration in parse_duration()
         self._duration = duration
         self.up = up
         self.name = name

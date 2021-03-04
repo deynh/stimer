@@ -10,7 +10,6 @@ CONFIG_SECTIONS = {
 }
 
 
-# TODO: No duplicate names
 def save_timer(timer):
     timer_json = timer.to_json()
     name = None
