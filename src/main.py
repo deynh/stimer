@@ -3,7 +3,7 @@ import time
 import logging
 import argparse
 
-from core import STimer, TimeFormat
+from core import STimer, TimeFormat, parse_duration
 from confighandler import save_timer, load_timer, get_timers_list, remove_timer
 
 
@@ -75,10 +75,20 @@ def parse(args):
             print("Timer " + args.remove + " not found.")
         sys.exit(0)
     else:
-        if args.duration is None and args.up is False:
-            args.up = True
-            print('No duration specified. Assuming "UP" (stopwatch) mode.')
-        timer = STimer(args.duration, args.up)
+        duration = None
+        if args.duration is None:
+            if args.up is False:
+                args.up = True
+                print('No duration specified. Assuming "UP" (stopwatch) mode.')
+        else:
+            duration = parse_duration(args.duration)
+            if duration is None:
+                print(
+                    'Duration could not be parsed. Duration must be in character format \
+                            "#h#m#s.###" or clock format "##:##:##.###".'
+                )
+                sys.exit(0)
+        timer = STimer(duration, args.up)
     if args.save or args.save_only:
         if args.name:
             timer.name = args.name

@@ -48,14 +48,72 @@ class STimeData:
         return clock_str
 
 
-class STimer:
-    def __init__(self, duration=None, up=False, name=None):
-        # TODO: Parse float types duration in parse_duration()
-        self._duration = None
-        if isinstance(duration, float):
-            self._duration = duration
+def parse_duration(duration):
+    # TODO: Match decimel fractions for character format
+    if duration is None:
+        return None
+    char_regex = r"(?i)^(((?=\d+[hms])((\d*[hms])|(\d*[ms])|(\d*[s]))){1,3})$"
+    clock_regex = r"^(((?=((:)|(\d+)))(:?\d*){1,3})|((?=((\d+)|(\.)))\d*\.\d*))$"
+    char_pattern = re.compile(char_regex)
+    clock_pattern = re.compile(clock_regex)
+    char_match = re.match(char_pattern, duration)
+    clock_match = re.match(clock_pattern, duration)
+
+    seconds = 0.0
+    if char_match:
+        logging.debug("Duration matched character format.")
+        hours_pattern = re.compile(r"(?i)\d+[h]")
+        mins_pattern = re.compile(r"(?i)\d+[m]")
+        secs_pattern = re.compile(r"(?i)\d+[s]")
+        secs_only_pattern = re.compile(r"^\d+$")
+        hours_match = re.search(hours_pattern, duration)
+        mins_match = re.search(mins_pattern, duration)
+        secs_match = re.search(secs_pattern, duration)
+        secs_only_match = re.match(secs_only_pattern, duration)
+
+        if secs_only_match:
+            secs = secs_only_match[0]
+            seconds = seconds + float(secs)
+            return seconds
+        if hours_match:
+            hours = hours_match[0][:-1]
+            seconds = seconds + (float(hours) * 60 * 60)
+        if mins_match:
+            mins = mins_match[0][:-1]
+            seconds = seconds + (float(mins) * 60)
+        if secs_match:
+            secs = secs_match[0][:-1]
+            seconds = seconds + float(secs)
+    elif clock_match:
+        logging.debug("Duration matched clock format.")
+        duration_splits = duration.split(":")
+        duration_splits.reverse()
+        if "." in duration_splits[0]:
+            secs_split = duration_splits[0].split(".")
+            if secs_split[0]:
+                secs = secs_split[0]
+                seconds = seconds + float(secs)
+            if secs_split[1]:
+                secs_fraction = secs_split[1]
+                secs_fraction = "0." + secs_fraction
+                seconds = seconds + float(secs_fraction)
         else:
-            self._duration = self.parse_duration(duration)
+            seconds = seconds + float(duration_splits[0])
+        multiplier = 60
+        if len(duration_splits) > 1:
+            for split in duration_splits[1:]:
+                seconds = seconds + (multiplier * float(split))
+                multiplier = multiplier * 60
+    else:
+        logging.debug("Duration did not match pattern.")
+        return None
+    return seconds
+
+
+class STimer:
+    def __init__(self, duration: float = None, up: bool = False, name: str = None):
+        # TODO: Parse float types duration in parse_duration()
+        self._duration = duration
         self.up = up
         self.name = name
         self._start_time = None
@@ -108,64 +166,3 @@ class STimer:
 
     def start(self):
         self._start_time = time.time()
-
-    def parse_duration(self, duration):
-        # TODO: Match decimel fractions for character format
-        if duration is None:
-            return None
-        char_regex = r"(?i)^(((?=\d+[hms])((\d*[hms])|(\d*[ms])|(\d*[s]))){1,3})$"
-        clock_regex = r"^(((?=((:)|(\d+)))(:?\d*){1,3})|((?=((\d+)|(\.)))\d*\.\d*))$"
-        char_pattern = re.compile(char_regex)
-        clock_pattern = re.compile(clock_regex)
-        char_match = re.match(char_pattern, duration)
-        clock_match = re.match(clock_pattern, duration)
-
-        seconds = 0.0
-        if char_match:
-            logging.debug("Duration matched character format.")
-            hours_pattern = re.compile(r"(?i)\d+[h]")
-            mins_pattern = re.compile(r"(?i)\d+[m]")
-            secs_pattern = re.compile(r"(?i)\d+[s]")
-            secs_only_pattern = re.compile(r"^\d+$")
-            hours_match = re.search(hours_pattern, duration)
-            mins_match = re.search(mins_pattern, duration)
-            secs_match = re.search(secs_pattern, duration)
-            secs_only_match = re.match(secs_only_pattern, duration)
-
-            if secs_only_match:
-                secs = secs_only_match[0]
-                seconds = seconds + float(secs)
-                return seconds
-            if hours_match:
-                hours = hours_match[0][:-1]
-                seconds = seconds + (float(hours) * 60 * 60)
-            if mins_match:
-                mins = mins_match[0][:-1]
-                seconds = seconds + (float(mins) * 60)
-            if secs_match:
-                secs = secs_match[0][:-1]
-                seconds = seconds + float(secs)
-        elif clock_match:
-            logging.debug("Duration matched clock format.")
-            duration_splits = duration.split(":")
-            duration_splits.reverse()
-            if "." in duration_splits[0]:
-                secs_split = duration_splits[0].split(".")
-                if secs_split[0]:
-                    secs = secs_split[0]
-                    seconds = seconds + float(secs)
-                if secs_split[1]:
-                    secs_fraction = secs_split[1]
-                    secs_fraction = "0." + secs_fraction
-                    seconds = seconds + float(secs_fraction)
-            else:
-                seconds = seconds + float(duration_splits[0])
-            multiplier = 60
-            if len(duration_splits) > 1:
-                for split in duration_splits[1:]:
-                    seconds = seconds + (multiplier * float(split))
-                    multiplier = multiplier * 60
-        else:
-            logging.debug("Duration did not match pattern.")
-            return None
-        return seconds
