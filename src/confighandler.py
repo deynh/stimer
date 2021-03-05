@@ -1,13 +1,39 @@
 import configparser
+import json
 import logging
 
 from core import STimer
 
 CONFIG_FILENAME = "stimer.conf"
 CONFIG_SECTIONS = {
-    "general": "GENERAL",
+    "global": "GLOBAL",
     "timers": "TIMERS",
 }
+DEFAULTS = {
+    "sound": True,
+    "widget_fmt": "full",
+}
+
+
+def get_defaults():
+    config = _load_config_file()
+    defaults = {}
+    if CONFIG_SECTIONS["global"] in config:
+        global_section = config[CONFIG_SECTIONS["global"]]
+        for key in DEFAULTS:
+            if key not in global_section:
+                key_json = json.dumps(DEFAULTS[key])
+                global_section[key] = key_json
+            defaults[key] = json.loads(global_section[key])
+    else:
+        config[CONFIG_SECTIONS["global"]] = {}
+        global_section = config[CONFIG_SECTIONS["global"]]
+        for key in DEFAULTS:
+            key_json = json.dumps(DEFAULTS[key])
+            global_section[key] = key_json
+        defaults = DEFAULTS
+    _write_config_file(config)
+    return defaults
 
 
 def save_timer(timer):
@@ -36,14 +62,15 @@ def load_timer(name):
     timer_json = read_value(name, CONFIG_SECTIONS["timers"])
     if timer_json is None:
         return None
-    return STimer().from_json(timer_json)
+    return STimer.from_json(timer_json)
 
 
 def get_timers_list():
     config = _load_config_file()
     timers = []
     if CONFIG_SECTIONS["timers"] in config:
-        for name in config[CONFIG_SECTIONS["timers"]]:
+        timers_section = config[CONFIG_SECTIONS["timers"]]
+        for name in timers_section:
             timer = load_timer(name)
             if timer:
                 timers.append([name, timer])
@@ -67,7 +94,7 @@ def _find_timer_number():
     return str(new_num)
 
 
-def read_value(key: str, section: str = CONFIG_SECTIONS["general"]) -> str:
+def read_value(key: str, section: str = CONFIG_SECTIONS["global"]) -> str:
     config = _load_config_file()
     value = None
     if section in config:
@@ -76,7 +103,7 @@ def read_value(key: str, section: str = CONFIG_SECTIONS["general"]) -> str:
     return value
 
 
-def write_value(key: str, value: str, section: str = CONFIG_SECTIONS["general"]):
+def write_value(key: str, value: str, section: str = CONFIG_SECTIONS["global"]):
     config = _load_config_file()
     if section not in config:
         config[section] = {}

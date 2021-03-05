@@ -49,9 +49,9 @@ class STimeData:
 
 
 def parse_duration(duration: str) -> float:
-    def to_float(decimel_time: str) -> float:
+    def to_float(decimal_time: str) -> float:
         time = 0.0
-        splits = decimel_time.split(".")
+        splits = decimal_time.split(".")
         if splits[0] != "":
             time = time + float(splits[0])
         if len(splits) > 1 and splits[1] != "":
@@ -109,10 +109,19 @@ def parse_duration(duration: str) -> float:
 
 
 class STimer:
-    def __init__(self, duration: float = None, up: bool = False, name: str = None):
+    def __init__(
+        self,
+        duration: float = None,
+        up: bool = False,
+        name: str = None,
+        sound: bool = None,
+        widget_fmt: str = None,
+    ):
         self._duration = duration
         self.up = up
         self.name = name
+        self.sound = sound
+        self.widget_fmt = widget_fmt
         self._start_time = None
 
     @classmethod
@@ -125,19 +134,27 @@ class STimer:
         duration = None
         up = False
         name = None
+        sound = None
+        widget_fmt = None
         if "duration" in data:
             duration = data["duration"]
         if "up" in data:
             up = data["up"]
         if "name" in data:
             name = data["name"]
-        return cls(duration, up, name)
+        if "sound" in data:
+            sound = data["sound"]
+        if "widget_fmt" in data:
+            widget_fmt = data["widget_fmt"]
+        return cls(duration, up, name, sound, widget_fmt)
 
     def to_json(self):
         data = {
             "name": self.name,
             "duration": self.duration(),
             "up": self.up,
+            "sound": self.sound,
+            "widget_fmt": self.widget_fmt,
         }
         return json.dumps(data)
 
@@ -148,16 +165,20 @@ class STimer:
         return stime(time_format)
 
     def elapsed(self, time_format=TimeFormat.SECONDS):
+        elapsed_time = None
         if self._start_time is None:
-            return None
-        elapsed_time = time.time() - self._start_time
+            elapsed_time = 0.0
+        else:
+            elapsed_time = time.time() - self._start_time
+            if self.duration():
+                elapsed_time = min(elapsed_time, self.duration())
         stime = STimeData(elapsed_time)
         return stime(time_format)
 
     def remaining(self, time_format=TimeFormat.SECONDS):
         if self.duration() is None:
             return None
-        secs_remaining = self.duration() - (self.elapsed() or 0)
+        secs_remaining = self.duration() - self.elapsed()
         stime = STimeData(secs_remaining)
         return stime(time_format)
 

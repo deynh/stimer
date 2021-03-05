@@ -4,14 +4,20 @@ import logging
 import argparse
 
 from core import STimer, TimeFormat, parse_duration
-from confighandler import save_timer, load_timer, get_timers_list, remove_timer
+from output import STimerOutput
+from confighandler import (
+    save_timer,
+    load_timer,
+    get_timers_list,
+    remove_timer,
+    get_defaults,
+)
 
 """
     TODO:
         * No duplicate timer names
         * Output:
-            - progress bar
-            - elapsed time + remaining time
+            - decimal fraction
         * Help output
         * Better char_regex
             - 5h2m3m5s
@@ -20,43 +26,35 @@ from confighandler import save_timer, load_timer, get_timers_list, remove_timer
 """
 
 
-def timer_continue(timer):
-    if timer.up:
-        if timer.duration() is None:
-            return True
-        elif timer.elapsed() < timer.duration():
-            return True
+def output_timer(timer):
+    output_fmt = {}
+    defaults = get_defaults()
+
+    def widget_fmt(fmt):
+        if fmt == "simple":
+            output_fmt["progress_bar"] = False
+            if timer.up:
+                output_fmt["elapsed"] = True
+                output_fmt["remaining"] = False
+            else:
+                output_fmt["elapsed"] = False
+                output_fmt["remaining"] = True
+        elif fmt == "full":
+            output_fmt["progress_bar"] = True
+            output_fmt["elapsed"] = True
+            output_fmt["remaining"] = True
+
+    if timer.sound is not None:
+        output_fmt["sound"] = timer.sound
     else:
-        if timer.remaining() > 0:
-            return True
-    return False
+        output_fmt["sound"] = defaults["sound"]
+    if timer.widget_fmt:
+        widget_fmt(timer.widget_fmt)
+    else:
+        widget_fmt(defaults["widget_fmt"])
 
-
-def output_timer(timer, sound=True):
-    try:
-        print("Timer started:")
-        if timer.up:
-            while timer_continue(timer) is True:
-                print(
-                    "\r" + timer.elapsed(TimeFormat.CLOCK) + " \x08", end="", flush=True
-                )
-        else:
-            while timer_continue(timer) is True:
-                print(
-                    "\r" + timer.remaining(TimeFormat.CLOCK) + " \x08",
-                    end="",
-                    flush=True,
-                )
-        print()
-        if sound:
-            print("Time's up! Control + C to exit.", end="", flush=True)
-            while True:
-                print("\a", end="", flush=True)
-                time.sleep(0.5)
-        else:
-            print("Time's up!")
-    except KeyboardInterrupt:
-        print()
+    timer_output = STimerOutput(timer, output_fmt)
+    timer_output.start_output()
 
 
 def list_timers():
@@ -79,7 +77,7 @@ def parse(args):
         timer = load_timer(args.timer)
         if timer is None:
             print("Timer {} not found.".format(args.timer))
-            sys.exit()
+            sys.exit(0)
     elif args.list:
         list_timers()
         sys.exit(0)
@@ -90,31 +88,56 @@ def parse(args):
         else:
             print("Timer " + args.remove + " not found.")
         sys.exit(0)
-    else:
-        duration = None
-        if args.duration is None:
-            if args.up is False:
-                args.up = True
-                print('No duration specified. Assuming "UP" (stopwatch) mode.')
-        else:
-            duration = parse_duration(args.duration)
-            if duration is None:
-                logging.error(
-                    "Duration could not be parsed. Duration must be in character "
-                    'format "#h#m#s.###" or clock format "##:##:##.###".'
-                )
-                sys.exit(0)
-        timer = STimer(duration, args.up)
+
+    duration = None
+    up = None
+    name = None
+    sound = None
+    widget_fmt = None
+    if args.duration:
+        duration = parse_duration(args.duration)
+        if duration is None:
+            logging.error(
+                "Duration could not be parsed. Duration must be in character "
+                'format "#h#m#s.###" or clock format "##:##:##.###".'
+            )
+            sys.exit(0)
+    elif timer:
+        duration = timer.duration()
+    if args.up:
+        up = args.up
+    elif timer:
+        up = timer.up
+    if duration is None:
+        if up is None or False:
+            up = True
+            print('No duration specified. Assuming "UP" (stopwatch) mode.')
+    if args.name:
+        name = args.name
+    elif timer:
+        name = timer.name
+    if args.no_sound:
+        sound = False
+    elif args.sound:
+        sound = True
+    elif timer:
+        sound = timer.sound
+    if args.full:
+        widget_fmt = "full"
+    elif args.simple:
+        widget_fmt = "simple"
+    elif timer:
+        widget_fmt = timer.widget_fmt
+    timer = STimer(duration, up, name, sound, widget_fmt)
+
     if args.save or args.save_only:
-        if args.name:
-            timer.name = args.name
         timer_name = save_timer(timer)
         print("Timer saved as timer " + timer_name)
         if args.save_only:
             sys.exit(0)
 
     timer.start()
-    output_timer(timer, not args.no_sound)
+    output_timer(timer)
 
 
 if __name__ == "__main__":
@@ -130,7 +153,12 @@ if __name__ == "__main__":
     save.add_argument("-l", "--list", action="store_true")
     save.add_argument("-r", "--remove")
     parser.add_argument("-n", "--name")
-    parser.add_argument("-N", "--no-sound", action="store_true")
+    sound = parser.add_mutually_exclusive_group()
+    sound.add_argument("-a", "--no-sound", action="store_true")
+    sound.add_argument("-A", "--sound", action="store_true")
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument("-o", "--simple", action="store_true")
+    output.add_argument("-O", "--full", action="store_true")
     args = parser.parse_args()
     parse(args)
 
