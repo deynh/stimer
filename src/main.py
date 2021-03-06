@@ -148,8 +148,6 @@ def parse(args):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-
     parser = argparse.ArgumentParser()
     parser.add_argument("duration", nargs="?")
     up = parser.add_mutually_exclusive_group()
@@ -168,7 +166,13 @@ if __name__ == "__main__":
     output = parser.add_mutually_exclusive_group()
     output.add_argument("-o", "--simple", action="store_true")
     output.add_argument("-O", "--full", action="store_true")
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
-    parse(args)
 
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig()
+
+    parse(args)
     sys.exit(0)
