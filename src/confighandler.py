@@ -42,6 +42,14 @@ def save_timer(timer):
     name = None
     if timer.name:
         name = timer.name
+        timers = get_timers_list()
+        for timer in timers:
+            if timer[0] == name:
+                overwrite = input(
+                    "Timer {} already exists. Overwrite?(Y/n)".format(name)
+                )
+                if overwrite != "Y":
+                    return None
     else:
         name = _find_timer_number()
     write_value(name, timer_json, CONFIG_SECTIONS["timers"])

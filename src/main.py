@@ -14,7 +14,6 @@ from confighandler import (
 
 """
     TODO:
-        * No duplicate timer names
         * Output:
             - decimal fraction
         * Help output
@@ -138,7 +137,10 @@ def parse(args):
 
     if args.save or args.save_only:
         timer_name = save_timer(timer)
-        print("Timer saved as timer " + timer_name)
+        if timer_name:
+            print("Timer saved as: " + timer_name)
+        else:
+            sys.exit(0)
         if args.save_only:
             sys.exit(0)
 
