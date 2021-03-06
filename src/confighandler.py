@@ -10,6 +10,7 @@ CONFIG_SECTIONS = {
     "timers": "TIMERS",
 }
 DEFAULTS = {
+    "up": False,
     "sound": True,
     "widget_fmt": "full",
 }

@@ -7,6 +7,7 @@ class STimerOutput:
     def __init__(self, timer, output_fmt=None):
         self.timer = timer
         self.output_fmt = {
+            "up": False,
             "sound": True,
             "progress_bar": True,
             "elapsed": True,
@@ -22,7 +23,7 @@ class STimerOutput:
                 self.output_fmt[key] = fmt[key]
 
     def _timer_continue(self):
-        if self.timer.up:
+        if self.output_fmt["up"]:
             if self.timer.duration() is None:
                 return True
             elif self.timer.elapsed() < self.timer.duration():
@@ -46,7 +47,7 @@ class STimerOutput:
             bar_max_value = self.timer.duration()
         left_text = None
         right_text = None
-        if self.timer.up:
+        if self.output_fmt["up"]:
             left_text = wgt_elapsed
             right_text = wgt_remaining
         else:
@@ -81,7 +82,7 @@ class STimerOutput:
             while self._timer_continue() is True:
                 update_value = None
                 if self.output_fmt["progress_bar"] is True:
-                    if self.timer.up:
+                    if self.output_fmt["up"]:
                         update_value = self.timer.elapsed()
                     else:
                         update_value = self.timer.remaining()
@@ -97,7 +98,7 @@ class STimerOutput:
                     bar.update(
                         update_value, elapsed=self.timer.elapsed(TimeFormat.CLOCK)
                     )
-            if self.timer.up is True and self.timer.duration():
+            if self.output_fmt["up"] is True and self.timer.duration():
                 update_value = self.timer.duration()
             else:
                 update_value = 0

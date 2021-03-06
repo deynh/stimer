@@ -112,7 +112,7 @@ class STimer:
     def __init__(
         self,
         duration: float = None,
-        up: bool = False,
+        up: bool = None,
         name: str = None,
         sound: bool = None,
         widget_fmt: str = None,

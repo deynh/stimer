@@ -22,7 +22,6 @@ from confighandler import (
         * Better char_regex
             - 5h2m3m5s
         * --list filters
-        * default settings
 """
 
 
@@ -44,6 +43,10 @@ def output_timer(timer):
             output_fmt["elapsed"] = True
             output_fmt["remaining"] = True
 
+    if timer.up is not None:
+        output_fmt["up"] = timer.up
+    else:
+        output_fmt["up"] = defaults["up"]
     if timer.sound is not None:
         output_fmt["sound"] = timer.sound
     else:
@@ -105,13 +108,21 @@ def parse(args):
     elif timer:
         duration = timer.duration()
     if args.up:
-        up = args.up
+        up = True
+    elif args.down:
+        up = False
     elif timer:
         up = timer.up
     if duration is None:
-        if up is None or False:
+        if up is None or up is False:
             up = True
-            print('No duration specified. Assuming "UP" (stopwatch) mode.')
+            if args.down:
+                print(
+                    'Cannot run timer in "DOWN" mode with no duration. '
+                    + 'Assuming "UP" (stopwatch) mode.'
+                )
+            else:
+                print('No duration specified. Assuming "UP" (stopwatch) mode.')
     if args.name:
         name = args.name
     elif timer:
@@ -145,7 +156,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("duration", nargs="?")
-    parser.add_argument("-u", "--up", action="store_true")
+    up = parser.add_mutually_exclusive_group()
+    up.add_argument("-u", "--up", action="store_true")
+    up.add_argument("-U", "--down", action="store_true")
     save = parser.add_mutually_exclusive_group()
     save.add_argument("-s", "--save", action="store_true")
     save.add_argument("-S", "--save-only", action="store_true")
