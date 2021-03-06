@@ -1,4 +1,5 @@
 import re
+import sys
 import json
 import logging
 import time
@@ -109,20 +110,14 @@ def parse_duration(duration: str) -> float:
 
 
 class STimer:
-    def __init__(
-        self,
-        duration: float = None,
-        up: bool = None,
-        name: str = None,
-        sound: bool = None,
-        widget_fmt: str = None,
-    ):
-        self._duration = duration
-        self.up = up
-        self.name = name
-        self.sound = sound
-        self.widget_fmt = widget_fmt
+    def __init__(self, **kwargs):
+        self._duration = None
+        self.up = None
+        self.name = None
+        self.sound = None
+        self.widget_fmt = None
         self._start_time = None
+        self.option_dict = kwargs
 
     @classmethod
     def from_json(cls, json_str):
@@ -131,28 +126,40 @@ class STimer:
         except json.JSONDecodeError as e:
             logging.error("JSON timer could not be decoded: " + e)
             return None
-        duration = None
-        up = False
-        name = None
-        sound = None
-        widget_fmt = None
-        if "duration" in data:
-            duration = data["duration"]
-        if "up" in data:
-            up = data["up"]
-        if "name" in data:
-            name = data["name"]
-        if "sound" in data:
-            sound = data["sound"]
-        if "widget_fmt" in data:
-            widget_fmt = data["widget_fmt"]
-        return cls(duration, up, name, sound, widget_fmt)
+        return cls(**data)
+
+    @property
+    def option_dict(self):
+        options = {
+            "duration": self.duration(),
+            "up": self.up,
+            "name": self.name,
+            "sound": self.sound,
+            "widget_fmt": self.widget_fmt,
+        }
+        return options
+
+    @option_dict.setter
+    def option_dict(self, options):
+        for option in options:
+            if option == "duration":
+                self._duration = options[option]
+            elif option == "up":
+                self.up = options[option]
+            elif option == "name":
+                self.name = options[option]
+            elif option == "sound":
+                self.sound = options[option]
+            elif option == "widget_fmt":
+                self.widget_fmt = options[option]
+            else:
+                logging.warning("Invalid key passed to STimer().option_dict")
 
     def to_json(self):
         data = {
-            "name": self.name,
             "duration": self.duration(),
             "up": self.up,
+            "name": self.name,
             "sound": self.sound,
             "widget_fmt": self.widget_fmt,
         }
@@ -184,6 +191,12 @@ class STimer:
 
     def start(self):
         self._start_time = time.time()
+        if self.duration() is None:
+            if self.up is None or self.up is False:
+                logging.critical(
+                    'STimer started in "DOWN" (timer) mode with no duration specified.'
+                )
+                sys.exit(1)
         logging.debug(
-            "Timer started with duration: " + (str(self.duration()) or "None")
+            "STimer started with duration: " + (str(self.duration()) or "None")
         )

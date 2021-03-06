@@ -22,6 +22,7 @@ from confighandler import (
         * Better char_regex
             - 5h2m3m5s
         * --list filters
+        * Allow --timer and --save
 """
 
 
@@ -74,14 +75,49 @@ def list_timers():
         print(timer_str)
 
 
+def set_timer_options(args, timer):
+    args_options = {}
+    if args.duration:
+        duration = parse_duration(args.duration)
+        if duration is None:
+            logging.error(
+                "Duration could not be parsed. Duration must be in character "
+                'format "#h#m#s.###" or clock format "##:##:##.###".'
+            )
+            sys.exit(0)
+        args_options["duration"] = duration
+    if args.up:
+        args_options["up"] = True
+    elif args.down:
+        args_options["up"] = False
+    if args.name:
+        args_options["name"] = args.name
+    if args.sound:
+        args_options["sound"] = True
+    elif args.no_sound:
+        args_options["sound"] = False
+    if args.full:
+        args_options["widget_fmt"] = "full"
+    elif args.simple:
+        args_options["simple"] = "simple"
+
+    timer.option_dict = args_options
+
+    if timer.duration is None:
+        if timer.up is None or timer.up is False:
+            timer.up = True
+            if args.down:
+                print(
+                    'Cannot run timer in "DOWN" (timer) mode with no duration. '
+                    + 'Assuming "UP" (stopwatch) mode.'
+                )
+            else:
+                print('No duration specified. Assuming "UP" (stopwatch) mode.')
+
+
 def parse(args):
     timer = None
-    if args.timer:
-        timer = load_timer(args.timer)
-        if timer is None:
-            print("Timer {} not found.".format(args.timer))
-            sys.exit(0)
-    elif args.list:
+    if args.list:
         list_timers()
         sys.exit(0)
     elif args.remove:
@@ -91,55 +127,15 @@ def parse(args):
         else:
             print("Timer " + args.remove + " not found.")
         sys.exit(0)
-
-    duration = None
-    up = None
-    name = None
-    sound = None
-    widget_fmt = None
-    if args.duration:
-        duration = parse_duration(args.duration)
-        if duration is None:
-            logging.error(
-                "Duration could not be parsed. Duration must be in character "
-                'format "#h#m#s.###" or clock format "##:##:##.###".'
-            )
+    elif args.timer:
+        timer = load_timer(args.timer)
+        if timer is None:
+            print("Timer {} not found.".format(args.timer))
             sys.exit(0)
-    elif timer:
-        duration = timer.duration()
-    if args.up:
-        up = True
-    elif args.down:
-        up = False
-    elif timer:
-        up = timer.up
-    if duration is None:
-        if up is None or up is False:
-            up = True
-            if args.down:
-                print(
-                    'Cannot run timer in "DOWN" mode with no duration. '
-                    + 'Assuming "UP" (stopwatch) mode.'
-                )
-            else:
-                print('No duration specified. Assuming "UP" (stopwatch) mode.')
-    if args.name:
-        name = args.name
-    elif timer:
-        name = timer.name
-    if args.no_sound:
-        sound = False
-    elif args.sound:
-        sound = True
-    elif timer:
-        sound = timer.sound
-    if args.full:
-        widget_fmt = "full"
-    elif args.simple:
-        widget_fmt = "simple"
-    elif timer:
-        widget_fmt = timer.widget_fmt
-    timer = STimer(duration, up, name, sound, widget_fmt)
+
+    if timer is None:
+        timer = STimer()
+    set_timer_options(args, timer)
 
     if args.save or args.save_only:
         timer_name = save_timer(timer)
