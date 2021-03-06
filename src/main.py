@@ -1,5 +1,4 @@
 import sys
-import time
 import logging
 import argparse
 
@@ -103,7 +102,7 @@ def set_timer_options(args, timer):
 
     timer.option_dict = args_options
 
-    if timer.duration is None:
+    if timer.duration() is None:
         if timer.up is None or timer.up is False:
             timer.up = True
             if args.down:
