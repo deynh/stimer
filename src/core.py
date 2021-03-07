@@ -200,7 +200,7 @@ class STimer:
         if precision is None:
             precision = self.precision
         elapsed_time = None
-        if self._start_time is None:
+        if self.started() is False:
             elapsed_time = 0.0
         else:
             elapsed_time = time.time() - self._start_time
@@ -217,6 +217,11 @@ class STimer:
         secs_remaining = self.duration() - self.elapsed()
         stime = STimeData(secs_remaining)
         return stime(time_format, precision)
+
+    def started(self):
+        if self._start_time is None:
+            return False
+        return True
 
     def start(self):
         self._start_time = time.time()

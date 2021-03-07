@@ -1,4 +1,6 @@
 import time
+import logging
+import sys
 import progressbar
 from core import TimeFormat
 from confighandler import get_defaults
@@ -92,6 +94,11 @@ class STimerOutput:
         return bar
 
     def start_output(self):
+        if self.timer.started() is False:
+            logging.critical(
+                '"STimer.start()" must be called before "STimerOutput.start_output()".'
+            )
+            sys.exit(1)
         finished = False
         try:
             bar = self._get_progress_bar()

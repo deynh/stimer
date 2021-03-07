@@ -14,7 +14,9 @@ from confighandler import (
 """
     TODO:
         * Help output
-        * Better char_regex
+        * Fix progress bar initial delay (set initial value)
+        * Improve --list output
+        * Improve char_regex
             - 5h2m3m5s
         * --list filters
         * Allow --timer and --save
