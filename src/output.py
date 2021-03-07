@@ -1,26 +1,49 @@
 import time
 import progressbar
 from core import TimeFormat
+from confighandler import get_defaults
 
 
 class STimerOutput:
-    def __init__(self, timer, output_fmt=None):
+    def __init__(self, timer):
         self.timer = timer
-        self.output_fmt = {
-            "up": False,
-            "sound": True,
-            "progress_bar": True,
-            "elapsed": True,
-            "remaining": True,
-        }
-        self._init_output_fmt(output_fmt)
+        self.output_fmt = self._init_output_fmt(timer)
 
-    def _init_output_fmt(self, fmt):
-        if fmt is None:
-            return
-        for key in fmt:
-            if key in self.output_fmt:
-                self.output_fmt[key] = fmt[key]
+    def _init_output_fmt(self, timer):
+        output_fmt = {}
+        defaults = get_defaults()
+
+        def widget_fmt(fmt):
+            if fmt == "simple":
+                output_fmt["progress_bar"] = False
+                if timer.up:
+                    output_fmt["elapsed"] = True
+                    output_fmt["remaining"] = False
+                else:
+                    output_fmt["elapsed"] = False
+                    output_fmt["remaining"] = True
+            elif fmt == "full":
+                output_fmt["progress_bar"] = True
+                output_fmt["elapsed"] = True
+                output_fmt["remaining"] = True
+
+        if timer.up is not None:
+            output_fmt["up"] = timer.up
+        else:
+            output_fmt["up"] = defaults["up"]
+        if timer.sound is not None:
+            output_fmt["sound"] = timer.sound
+        else:
+            output_fmt["sound"] = defaults["sound"]
+        if timer.widget_fmt:
+            widget_fmt(timer.widget_fmt)
+        else:
+            widget_fmt(defaults["widget_fmt"])
+        if timer.precision:
+            output_fmt["precision"] = timer.precision
+        else:
+            output_fmt["precision"] = defaults["precision"]
+        return output_fmt
 
     def _timer_continue(self):
         if self.output_fmt["up"]:

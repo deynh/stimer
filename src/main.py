@@ -9,54 +9,16 @@ from confighandler import (
     load_timer,
     get_timers_list,
     remove_timer,
-    get_defaults,
 )
 
 """
     TODO:
-        * Output:
-            - decimal fraction
         * Help output
         * Better char_regex
             - 5h2m3m5s
         * --list filters
         * Allow --timer and --save
 """
-
-
-def output_timer(timer):
-    output_fmt = {}
-    defaults = get_defaults()
-
-    def widget_fmt(fmt):
-        if fmt == "simple":
-            output_fmt["progress_bar"] = False
-            if timer.up:
-                output_fmt["elapsed"] = True
-                output_fmt["remaining"] = False
-            else:
-                output_fmt["elapsed"] = False
-                output_fmt["remaining"] = True
-        elif fmt == "full":
-            output_fmt["progress_bar"] = True
-            output_fmt["elapsed"] = True
-            output_fmt["remaining"] = True
-
-    if timer.up is not None:
-        output_fmt["up"] = timer.up
-    else:
-        output_fmt["up"] = defaults["up"]
-    if timer.sound is not None:
-        output_fmt["sound"] = timer.sound
-    else:
-        output_fmt["sound"] = defaults["sound"]
-    if timer.widget_fmt:
-        widget_fmt(timer.widget_fmt)
-    else:
-        widget_fmt(defaults["widget_fmt"])
-
-    timer_output = STimerOutput(timer, output_fmt)
-    timer_output.start_output()
 
 
 def list_timers():
@@ -98,6 +60,8 @@ def set_timer_options(args, timer):
         args_options["widget_fmt"] = "full"
     elif args.simple:
         args_options["simple"] = "simple"
+    if args.precision is not None:
+        args_options["precision"] = args.precision
 
     timer.option_dict = args_options
 
@@ -145,7 +109,8 @@ def parse(args):
             sys.exit(0)
 
     timer.start()
-    output_timer(timer)
+    timer_output = STimerOutput(timer)
+    timer_output.start_output()
 
 
 if __name__ == "__main__":
@@ -167,6 +132,7 @@ if __name__ == "__main__":
     output = parser.add_mutually_exclusive_group()
     output.add_argument("-o", "--simple", action="store_true")
     output.add_argument("-O", "--full", action="store_true")
+    parser.add_argument("-p", "--precision", type=int)
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 

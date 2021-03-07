@@ -13,6 +13,7 @@ DEFAULTS = {
     "up": False,
     "sound": True,
     "widget_fmt": "full",
+    "precision": 0,
 }
 
 

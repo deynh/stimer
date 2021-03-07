@@ -15,21 +15,24 @@ class STimeData:
     def __init__(self, seconds):
         self._seconds = seconds
 
-    def __call__(self, time_format=TimeFormat.SECONDS):
+    def __call__(self, time_format=TimeFormat.SECONDS, precision=None):
         if time_format is TimeFormat.CLOCK:
-            return self.clock
+            return self.clock(precision)
         return self.seconds
 
     @property
     def seconds(self):
         return self._seconds
 
-    @property
-    def clock(self):
+    def clock(self, precision=None):
+        if precision is None:
+            precision = 0
         minutes = self._seconds / 60
         hours_left = int(minutes / 60)
         mins_left = int((self._seconds / 60) - (60 * hours_left))
-        secs_left = int(round(self._seconds % 60))
+        secs_left = round(self._seconds % 60, precision)
+        if precision == 0:
+            secs_left = int(secs_left)
         if secs_left == 60:
             secs_left = 0
             mins_left = mins_left + 1
@@ -39,10 +42,14 @@ class STimeData:
         clock_format = []
         clock_format.append(str(hours_left))
         clock_format.append(str(mins_left))
-        clock_format.append(str(secs_left))
+        if precision == 0:
+            clock_format.append(str(secs_left))
+        else:
+            clock_format.append(format(secs_left, "." + str(precision) + "f"))
         clock_str = ""
         for s in clock_format:
-            if len(s) < 2:
+            whole_split = s.split(".")[0]
+            if len(whole_split) < 2:
                 s = "0" + s
             clock_str = clock_str + s + ":"
         clock_str = clock_str[:-1]
@@ -116,6 +123,7 @@ class STimer:
         self.name = None
         self.sound = None
         self.widget_fmt = None
+        self._precision = None
         self._start_time = None
         self.option_dict = kwargs
 
@@ -129,6 +137,17 @@ class STimer:
         return cls(**data)
 
     @property
+    def precision(self):
+        if self._precision is None and self._duration:
+            if self._duration % 1 != 0:
+                duration_str = str(self._duration)
+                splits = duration_str.split(".")
+                if len(splits) >= 2:
+                    decimal_split = splits[1]
+                    return len(decimal_split)
+        return self._precision
+
+    @property
     def option_dict(self):
         options = {
             "duration": self.duration(),
@@ -136,6 +155,7 @@ class STimer:
             "name": self.name,
             "sound": self.sound,
             "widget_fmt": self.widget_fmt,
+            "precision": self._precision,
         }
         return options
 
@@ -152,6 +172,8 @@ class STimer:
                 self.sound = options[option]
             elif option == "widget_fmt":
                 self.widget_fmt = options[option]
+            elif option == "precision":
+                self._precision = options[option]
             else:
                 logging.warning("Invalid key passed to STimer().option_dict")
 
@@ -162,16 +184,21 @@ class STimer:
             "name": self.name,
             "sound": self.sound,
             "widget_fmt": self.widget_fmt,
+            "precision": self._precision,
         }
         return json.dumps(data)
 
-    def duration(self, time_format=TimeFormat.SECONDS):
+    def duration(self, time_format=TimeFormat.SECONDS, precision=None):
+        if precision is None:
+            precision = self.precision
         if self._duration is None:
             return None
         stime = STimeData(self._duration)
-        return stime(time_format)
+        return stime(time_format, precision)
 
-    def elapsed(self, time_format=TimeFormat.SECONDS):
+    def elapsed(self, time_format=TimeFormat.SECONDS, precision=None):
+        if precision is None:
+            precision = self.precision
         elapsed_time = None
         if self._start_time is None:
             elapsed_time = 0.0
@@ -180,14 +207,16 @@ class STimer:
             if self.duration():
                 elapsed_time = min(elapsed_time, self.duration())
         stime = STimeData(elapsed_time)
-        return stime(time_format)
+        return stime(time_format, precision)
 
-    def remaining(self, time_format=TimeFormat.SECONDS):
+    def remaining(self, time_format=TimeFormat.SECONDS, precision=None):
+        if precision is None:
+            precision = self.precision
         if self.duration() is None:
             return None
         secs_remaining = self.duration() - self.elapsed()
         stime = STimeData(secs_remaining)
-        return stime(time_format)
+        return stime(time_format, precision)
 
     def start(self):
         self._start_time = time.time()
