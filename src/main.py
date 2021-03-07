@@ -14,7 +14,6 @@ from confighandler import (
 """
     TODO:
         * Help output
-        * Fix progress bar initial delay (set initial value)
         * Improve --list output
         * Improve char_regex
             - 5h2m3m5s
@@ -61,7 +60,7 @@ def set_timer_options(args, timer):
     if args.full:
         args_options["widget_fmt"] = "full"
     elif args.simple:
-        args_options["simple"] = "simple"
+        args_options["widget_fmt"] = "simple"
     if args.precision is not None:
         args_options["precision"] = args.precision
 

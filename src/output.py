@@ -68,7 +68,7 @@ class STimerOutput:
         if self.output_fmt["elapsed"] is True:
             wgt_elapsed = progressbar.Variable(name="elapsed", format="{value}")
         if self.output_fmt["progress_bar"] is True and self.timer.duration():
-            wgt_bar = progressbar.Bar(marker="\u2588")
+            wgt_bar = progressbar.Bar(marker="\u2588", left=" ", right=" ")
             bar_max_value = self.timer.duration()
         left_text = None
         right_text = None
@@ -104,7 +104,7 @@ class STimerOutput:
             bar = self._get_progress_bar()
             if self.timer.duration():
                 print(
-                    "Timer started with duration: "
+                    "Timer started with duration "
                     + self.timer.duration(TimeFormat.CLOCK)
                 )
             else:
