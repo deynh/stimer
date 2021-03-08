@@ -14,7 +14,6 @@ from confighandler import (
 """
     TODO:
         * Help output
-        * Improve --list output
         * Improve char_regex
             - 5h2m3m5s
         * --list filters
@@ -24,16 +23,54 @@ from confighandler import (
 
 def list_timers():
     timers = get_timers_list()
+    rows = [("Name", "Duration", "Options")]
+    column_len = [4, 8, 7]
     for timer in timers:
         name = timer[0]
         stimer = timer[1]
-        duration = stimer.duration(TimeFormat.CLOCK)
-        if duration is None:
-            duration = "--"
-        timer_str = name + " " + duration
-        if stimer.up:
-            timer_str = timer_str + " UP"
-        print(timer_str)
+        options = stimer.option_dict
+        row = [name]
+        column_len[0] = max(len(row[0]), column_len[0])
+        if stimer.duration():
+            row.append(stimer.duration(TimeFormat.CLOCK))
+        else:
+            row.append("")
+        column_len[1] = max(len(row[1]), column_len[1])
+        options_entries = []
+        if options["up"] is not None:
+            if options["up"] is True:
+                options_entries.append("up")
+            else:
+                options_entries.append("down")
+        if options["sound"] is not None:
+            if options["sound"] is True:
+                options_entries.append("sound")
+            else:
+                options_entries.append("no sound")
+        if options["widget_fmt"]:
+            if options["widget_fmt"] == "simple":
+                options_entries.append("simple")
+            elif options["widget_fmt"] == "full":
+                options_entries.append("full")
+        if options["precision"] is not None:
+            options_entries.append("precision " + options["precision"])
+        options_str = ", ".join(options_entries)
+        row.append(options_str)
+        column_len[2] = max(len(row[2]), column_len[2])
+        rows.append(row)
+    line_len = 0
+    for i, row in enumerate(rows):
+        row_str = "| "
+        for j, entry in enumerate(row):
+            if len(entry) < column_len[j]:
+                entry = entry + " " * (column_len[j] - len(entry))
+            row_str = row_str + entry + " | "
+        row_str.strip()
+        line_len = max(line_len, len(row_str))
+        rows[i] = row_str
+    rows.insert(1, "*" * line_len)
+    for row in rows:
+        print(row)
 
 
 def set_timer_options(args, timer):
