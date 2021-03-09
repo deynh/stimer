@@ -16,8 +16,9 @@ from confighandler import (
         * Improve char_regex
             - 5h2m3m5s
         * --list filters
-        * Allow --timer and --save
 """
+
+VERSION = "pre-release"
 
 help_messages = {
     "duration": (
@@ -67,6 +68,7 @@ help_messages = {
         "            5.5:: -> 5 hours and 30 minutes\n"
         "            :45: -> 45 minutes\n"
     ),
+    "version": "output version information and exit",
 }
 
 
@@ -239,6 +241,7 @@ if __name__ == "__main__":
     save.add_argument("-l", "--list", action="store_true", help=help_messages["list"])
     parser.add_argument("-n", "--name", help=help_messages["name"])
     parser.add_argument("-t", "--timer", help=help_messages["timer"], metavar="NAME")
+    parser.add_argument("--version", action="store_true", help=help_messages["version"])
     parser.add_argument("--help-duration", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--debug", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
@@ -249,6 +252,9 @@ if __name__ == "__main__":
         logging.basicConfig()
     if args.help_duration:
         print(help_messages["help_duration"])
+        sys.exit(0)
+    if args.version:
+        print("simpletimer " + VERSION)
         sys.exit(0)
 
     parse(args)
