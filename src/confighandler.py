@@ -2,9 +2,12 @@ import configparser
 import json
 import logging
 
+from pathlib import Path
 from core import STimer
 
+CONFIG_DIR = str(Path.home()) + "/.config/simpletimer/"
 CONFIG_FILENAME = "stimer.conf"
+CONFIG_FILE = Path(CONFIG_DIR + CONFIG_FILENAME)
 CONFIG_SECTIONS = {
     "global": "GLOBAL",
     "timers": "TIMERS",
@@ -124,11 +127,13 @@ def write_value(key: str, value: str, section: str = CONFIG_SECTIONS["global"]):
 def _load_config_file() -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     try:
-        with open(CONFIG_FILENAME, "r") as f:
-            config.read_file(f)
-    except FileNotFoundError:
-        with open(CONFIG_FILENAME, "x"):
-            logging.info("stimer.conf file created.")
+        if not CONFIG_FILE.exists():
+            Path(CONFIG_DIR).mkdir(parents=True, exist_ok=True)
+            with open(CONFIG_FILE, "x"):
+                logging.info(CONFIG_FILE.name + " file created.")
+        else:
+            with open(CONFIG_FILE, "r") as f:
+                config.read_file(f)
     except OSError as e:
         logging.error(e)
         return None
@@ -137,7 +142,9 @@ def _load_config_file() -> configparser.ConfigParser:
 
 def _write_config_file(config: configparser.ConfigParser) -> configparser.ConfigParser:
     try:
-        with open(CONFIG_FILENAME, "w") as f:
+        if not CONFIG_FILE.exists():
+            Path(CONFIG_DIR).mkdir(parents=True, exist_ok=True)
+        with open(CONFIG_FILE, "w") as f:
             config.write(f)
     except OSError as e:
         logging.error(e)

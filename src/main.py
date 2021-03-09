@@ -207,7 +207,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTIONS]... DURATION",
-        prefix_chars="-?",
         formatter_class=help_formatter,
     )
     parser.add_argument(
