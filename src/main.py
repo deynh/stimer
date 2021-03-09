@@ -11,16 +11,9 @@ from confighandler import (
     remove_timer,
 )
 
-"""
-    TODO:
-        * Improve char_regex
-            - 5h2m3m5s
-        * --list filters
-"""
-
 VERSION = "pre-release"
 
-help_messages = {
+HELP_MSGS = {
     "duration": (
         'Duration of timer in "hms" format or "clock" format.\n'
         "    hms format -> #h#m#s\n"
@@ -212,36 +205,32 @@ if __name__ == "__main__":
         formatter_class=help_formatter,
     )
     parser.add_argument(
-        "duration", nargs="?", help=help_messages["duration"], metavar="DURATION"
+        "duration", nargs="?", help=HELP_MSGS["duration"], metavar="DURATION"
     )
     up = parser.add_mutually_exclusive_group()
-    up.add_argument("-u", "--up", action="store_true", help=help_messages["up"])
-    up.add_argument("-U", "--down", action="store_true", help=help_messages["down"])
+    up.add_argument("-u", "--up", action="store_true", help=HELP_MSGS["up"])
+    up.add_argument("-U", "--down", action="store_true", help=HELP_MSGS["down"])
     sound = parser.add_mutually_exclusive_group()
     sound.add_argument(
-        "-a", "--no-sound", action="store_true", help=help_messages["no_sound"]
+        "-a", "--no-sound", action="store_true", help=HELP_MSGS["no_sound"]
     )
-    sound.add_argument(
-        "-A", "--sound", action="store_true", help=help_messages["sound"]
-    )
+    sound.add_argument("-A", "--sound", action="store_true", help=HELP_MSGS["sound"])
     output = parser.add_mutually_exclusive_group()
-    output.add_argument(
-        "-o", "--simple", action="store_true", help=help_messages["simple"]
-    )
-    output.add_argument("-O", "--full", action="store_true", help=help_messages["full"])
+    output.add_argument("-o", "--simple", action="store_true", help=HELP_MSGS["simple"])
+    output.add_argument("-O", "--full", action="store_true", help=HELP_MSGS["full"])
     parser.add_argument(
-        "-p", "--precision", type=int, help=help_messages["precision"], metavar="N"
+        "-p", "--precision", type=int, help=HELP_MSGS["precision"], metavar="N"
     )
     save = parser.add_mutually_exclusive_group()
-    save.add_argument("-s", "--save", action="store_true", help=help_messages["save"])
+    save.add_argument("-s", "--save", action="store_true", help=HELP_MSGS["save"])
     save.add_argument(
-        "-S", "--save-only", action="store_true", help=help_messages["save_only"]
+        "-S", "--save-only", action="store_true", help=HELP_MSGS["save_only"]
     )
-    save.add_argument("-r", "--remove", help=help_messages["remove"], metavar="NAME")
-    save.add_argument("-l", "--list", action="store_true", help=help_messages["list"])
-    parser.add_argument("-n", "--name", help=help_messages["name"])
-    parser.add_argument("-t", "--timer", help=help_messages["timer"], metavar="NAME")
-    parser.add_argument("--version", action="store_true", help=help_messages["version"])
+    save.add_argument("-r", "--remove", help=HELP_MSGS["remove"], metavar="NAME")
+    save.add_argument("-l", "--list", action="store_true", help=HELP_MSGS["list"])
+    parser.add_argument("-n", "--name", help=HELP_MSGS["name"])
+    parser.add_argument("-t", "--timer", help=HELP_MSGS["timer"], metavar="NAME")
+    parser.add_argument("--version", action="store_true", help=HELP_MSGS["version"])
     parser.add_argument("--help-duration", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--debug", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
@@ -251,7 +240,7 @@ if __name__ == "__main__":
     else:
         logging.basicConfig()
     if args.help_duration:
-        print(help_messages["help_duration"])
+        print(HELP_MSGS["help_duration"])
         sys.exit(0)
     if args.version:
         print("simpletimer " + VERSION)

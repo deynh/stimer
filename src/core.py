@@ -80,27 +80,30 @@ def parse_duration(duration: str) -> float:
     seconds = 0.0
     if char_match:
         logging.debug("Duration matched character format.")
-        hours_pattern = re.compile(r"(?i)\d*\.?\d*[h]")
-        mins_pattern = re.compile(r"(?i)\d*\.?\d*[m]")
-        secs_pattern = re.compile(r"(?i)\d*\.?\d*[s]?$")
-        hours_match = re.search(hours_pattern, duration)
-        mins_match = re.search(mins_pattern, duration)
-        secs_match = re.search(secs_pattern, duration)
+        hours_pattern = re.compile(r"(?i)\d*\.?\d*h")
+        mins_pattern = re.compile(r"(?i)\d*\.?\d*m")
+        secs_pattern = re.compile(r"(?i)((\d*\.?\d*s)|(\d*\.?\d*$))")
+        hours_match = re.findall(hours_pattern, duration)
+        mins_match = re.findall(mins_pattern, duration)
+        secs_match = re.findall(secs_pattern, duration)
 
         if hours_match:
-            hours = hours_match[0][:-1]
-            hours = to_float(hours)
+            hours = 0.0
+            for match in hours_match:
+                hours = hours + float(match[:-1])
             seconds = seconds + (hours * 60 * 60)
         if mins_match:
-            mins = mins_match[0][:-1]
-            mins = to_float(mins)
+            mins = 0.0
+            for match in mins_match:
+                mins = mins + float(match[:-1])
             seconds = seconds + (mins * 60)
         if secs_match:
-            secs = secs_match[0]
-            if len(secs) > 0 and secs[-1] == "s":
-                secs = secs[:-1]
-            secs = to_float(secs)
-            seconds = seconds + secs
+            for match in secs_match:
+                first_group = match[0]
+                if len(first_group) > 0:
+                    if first_group[-1] == "s":
+                        first_group = first_group[:-1]
+                    seconds = seconds + float(first_group)
     elif clock_match:
         logging.debug("Duration matched clock format.")
         duration_splits = duration.split(":")
@@ -145,6 +148,8 @@ class STimer:
                 if len(splits) >= 2:
                     decimal_split = splits[1]
                     return len(decimal_split)
+            else:
+                return 0
         return self._precision
 
     @property
