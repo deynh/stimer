@@ -257,5 +257,8 @@ if __name__ == "__main__":
         print("simpletimer " + VERSION)
         sys.exit(0)
 
-    parse(args)
+    try:
+        parse(args)
+    except KeyboardInterrupt:
+        sys.exit(0)
     sys.exit(0)
