@@ -19,6 +19,56 @@ from confighandler import (
         * Allow --timer and --save
 """
 
+help_messages = {
+    "duration": (
+        'Duration of timer in "hms" format or "clock" format.\n'
+        "    hms format -> #h#m#s\n"
+        "    clock format -> ##:##:##\n"
+        'See "--help-duration"'
+    ),
+    "up": "count up (stopwatch mode), duration not required",
+    "down": "count down (timer mode), default; useful to override saved timers",
+    "no_sound": "no alert sound",
+    "sound": "alert sound, default; useful to override saved timers",
+    "simple": "simple output with no progress bar",
+    "full": "full output, default; useful to override saved timers",
+    "precision": "N {0, 1, 2...} decimal precision; default dependent on DURATION",
+    "save": "save timer",
+    "save_only": "save timer and do not run",
+    "remove": "remove saved timer",
+    "list": "list saved timers",
+    "name": "name timer when saving",
+    "timer": "run timer",
+    "help_duration": (
+        "Timer DURATION can be specified in 2 formats:\n"
+        "\n"
+        "hms format -> #h#m#s\n"
+        "    where # can be any positive number including decimals.\n"
+        '    "hms" refers to "hours", "minutes", and "seconds" respectively.\n'
+        "    Any time unit can be omitted. "
+        "Blanks between time units are counted as 0's.\n"
+        "        Examples:\n"
+        "            4h3s -> 4 hours and 3 seconds\n"
+        "            1.5h -> 1 hour and 30 minutes\n"
+        "            3h105.4m8s -> 4 hours 45 minutes and 32 seconds\n"
+        "            3hm1s -> 3 hours and 1 second\n"
+        "\n"
+        "clock format -> ##:##:##\n"
+        "    where # can be any positive number including decimals.\n"
+        '    ":"\'s deliminate "hours", "minutes", and "seconds".\n'
+        "    Leading time units can be omitted. "
+        "Blanks between time units are counted as 0's.\n"
+        "        Examples:\n"
+        "            04:03 -> 4 minutes and 3 seconds\n"
+        "            4:3 -> 4 minutes and 3 seconds\n"
+        "            20 -> 20 seconds\n"
+        "            5:00:6.5 -> 5 hours and 6.5 seconds\n"
+        "            5::6.5 -> 5 hours and 6.5 seconds\n"
+        "            5.5:: -> 5 hours and 30 minutes\n"
+        "            :45: -> 45 minutes\n"
+    ),
+}
+
 
 def list_timers():
     timers = get_timers_list()
@@ -151,12 +201,6 @@ def parse(args):
 
 
 if __name__ == "__main__":
-    duration_help = (
-        'Duration of timer in either "hms" format or "clock" format.\n'
-        "    hms format -> #h#m#s\n"
-        "    clock format -> ##:##:##\n"
-        'See "--help-duration"'
-    )
 
     def help_formatter(prog):
         return argparse.RawTextHelpFormatter(prog, max_help_position=26)
@@ -166,55 +210,37 @@ if __name__ == "__main__":
         prefix_chars="-?",
         formatter_class=help_formatter,
     )
-    parser.add_argument("duration", nargs="?", help=duration_help, metavar="DURATION")
-    parser.add_argument("--help-duration", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "duration", nargs="?", help=help_messages["duration"], metavar="DURATION"
+    )
     up = parser.add_mutually_exclusive_group()
-    up.add_argument(
-        "-u",
-        "--up",
-        action="store_true",
-        help="count up (stopwatch mode), duration not required",
-    )
-    up.add_argument(
-        "-U",
-        "--down",
-        action="store_true",
-        help="count down (timer mode), default; useful to override saved timers",
-    )
+    up.add_argument("-u", "--up", action="store_true", help=help_messages["up"])
+    up.add_argument("-U", "--down", action="store_true", help=help_messages["down"])
     sound = parser.add_mutually_exclusive_group()
-    sound.add_argument("-a", "--no-sound", action="store_true", help="no alert sound")
     sound.add_argument(
-        "-A",
-        "--sound",
-        action="store_true",
-        help="alert sound, default; useful to override saved timers",
+        "-a", "--no-sound", action="store_true", help=help_messages["no_sound"]
+    )
+    sound.add_argument(
+        "-A", "--sound", action="store_true", help=help_messages["sound"]
     )
     output = parser.add_mutually_exclusive_group()
     output.add_argument(
-        "-o", "--simple", action="store_true", help="simple output with no progress bar"
+        "-o", "--simple", action="store_true", help=help_messages["simple"]
     )
-    output.add_argument(
-        "-O",
-        "--full",
-        action="store_true",
-        help="full output, default; useful to override saved timers",
-    )
+    output.add_argument("-O", "--full", action="store_true", help=help_messages["full"])
     parser.add_argument(
-        "-p",
-        "--precision",
-        type=int,
-        help="N {0, 1, 2...} decimal precision; default dependent on DURATION",
-        metavar="N",
+        "-p", "--precision", type=int, help=help_messages["precision"], metavar="N"
     )
     save = parser.add_mutually_exclusive_group()
-    save.add_argument("-s", "--save", action="store_true", help="save timer")
+    save.add_argument("-s", "--save", action="store_true", help=help_messages["save"])
     save.add_argument(
-        "-S", "--save-only", action="store_true", help="save timer and do not run"
+        "-S", "--save-only", action="store_true", help=help_messages["save_only"]
     )
-    save.add_argument("-r", "--remove", help="remove saved timer", metavar="NAME")
-    save.add_argument("-l", "--list", action="store_true", help="list saved timers")
-    parser.add_argument("-n", "--name", help="name timer when saving")
-    parser.add_argument("-t", "--timer", help="run timer", metavar="NAME")
+    save.add_argument("-r", "--remove", help=help_messages["remove"], metavar="NAME")
+    save.add_argument("-l", "--list", action="store_true", help=help_messages["list"])
+    parser.add_argument("-n", "--name", help=help_messages["name"])
+    parser.add_argument("-t", "--timer", help=help_messages["timer"], metavar="NAME")
+    parser.add_argument("--help-duration", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--debug", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
@@ -223,33 +249,7 @@ if __name__ == "__main__":
     else:
         logging.basicConfig()
     if args.help_duration:
-        help_duration = (
-            "Timer DURATION can be specified in 2 formats:\n"
-            "\n"
-            "hms format -> #h#m#s\n"
-            "    where # can be any positive number including decimals, and any time "
-            "unit can be omitted.\n"
-            "    Blanks between time units are counted as 0's.\n"
-            "        Examples:\n"
-            "            4h3s -> 4 hours and 3 seconds\n"
-            "            1.5h -> 1 hour and 30 minutes\n"
-            "            3h105.4m8s -> 4 hours 45 minutes and 32 seconds\n"
-            "            3hm1s -> 3 hours and 1 second\n"
-            "\n"
-            "clock format -> ##:##:##\n"
-            "    where # can be any positive number including decimals, and left-most "
-            "time units can be omitted.\n"
-            "    Blanks between \":\"'s are counted as 0's.\n"
-            "        Examples:\n"
-            "            04:03 -> 4 minutes and 3 seconds\n"
-            "            4:3 -> 4 minutes and 3 seconds\n"
-            "            20 -> 20 seconds\n"
-            "            5:00:6.5 -> 5 hours and 6.5 seconds\n"
-            "            5::6.5 -> 5 hours and 6.5 seconds\n"
-            "            5.5:: -> 5 hours and 30 minutes\n"
-            "            :45: -> 45 minutes\n"
-        )
-        print(help_duration)
+        print(help_messages["help_duration"])
         sys.exit(0)
 
     parse(args)
