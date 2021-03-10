@@ -2,8 +2,8 @@ import time
 import logging
 import sys
 import progressbar
-from stimer.core import TimeFormat
-from stimer.confighandler import get_defaults
+from .core import TimeFormat
+from .confighandler import get_defaults
 
 
 class STimerOutput:

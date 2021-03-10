@@ -2,9 +2,9 @@ import sys
 import logging
 import argparse
 
-from stimer.core import STimer, TimeFormat, parse_duration
-from stimer.output import STimerOutput
-from stimer.confighandler import (
+from .core import STimer, TimeFormat, parse_duration
+from .output import STimerOutput
+from .confighandler import (
     save_timer,
     load_timer,
     get_timers_list,
@@ -195,8 +195,7 @@ def parse(args):
     timer_output.start_output()
 
 
-if __name__ == "__main__":
-
+def main():
     def help_formatter(prog):
         return argparse.RawTextHelpFormatter(prog, max_help_position=26)
 
@@ -251,3 +250,12 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         sys.exit(0)
     sys.exit(0)
+
+
+def simpletimer():
+    print('hint: use alias "stimer" instead of "simpletimer"')
+    main()
+
+
+if __name__ == "__main__":
+    main()
