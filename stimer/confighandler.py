@@ -3,7 +3,7 @@ import json
 import logging
 
 from pathlib import Path
-from core import STimer
+from stimer.core import STimer
 
 CONFIG_DIR = str(Path.home()) + "/.config/simpletimer/"
 CONFIG_FILENAME = "stimer.conf"

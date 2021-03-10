@@ -2,9 +2,9 @@ import sys
 import logging
 import argparse
 
-from core import STimer, TimeFormat, parse_duration
-from output import STimerOutput
-from confighandler import (
+from stimer.core import STimer, TimeFormat, parse_duration
+from stimer.output import STimerOutput
+from stimer.confighandler import (
     save_timer,
     load_timer,
     get_timers_list,
