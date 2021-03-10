@@ -3,7 +3,7 @@ Simpletimer is a command line timer that features short, flexible syntax and bas
 ## Features:
 * Two "loosely-parsed" formats for specifying timer duration:
 	* "hms" format: #h#m#s
-	* "clock" format: ##:##:##
+	* "clock" format: ##:##:##  
 	See [duration examples](#duration-examples)
 * "UP" (timer) mode and "DOWN" (stopwatch) mode
 * Alert sound (system sound) for timer end with option to disable
@@ -11,7 +11,8 @@ Simpletimer is a command line timer that features short, flexible syntax and bas
 * Decimal precision output determined by timer duration with the option to override
 * Save and load timers
 ## Installation:
-`pip install stimer`<br>
+`pip install stimer`
+
 A config file is created at `$HOME/.config/simpletimer/stimer.conf`
 ## Usage:
 `stimer --help`:
@@ -41,33 +42,33 @@ A config file is created at `$HOME/.config/simpletimer/stimer.conf`
 	  -t NAME, --timer NAME   run timer
 	  --version               output version information and exit
 ```
-## Duration examples:
-`stimer 20`
+### Duration examples:
+`stimer 20`  
 starts a timer for 20 seconds
 
-`stimer 4h3s`
+`stimer 4h3s`  
 4 hours and 3 seconds
 
-`stimer 1.5h`
+`stimer 1.5h`  
 1 hour and 30 minutes
 
-`stimer 3h105.4m8s`
+`stimer 3h105.4m8s`  
 4 hours 45 minutes and 32 seconds
 
-`stimer 04:03`
+`stimer 04:03`  
 4 minutes and 3 seconds
 
-`stimer 4:3`
+`stimer 4:3`  
 4 minutes and 3 seconds
 
-`stimer 5:00:6.5`
+`stimer 5:00:6.5`  
 5 hours and 6.5 seconds
 
-`stimer 5::6.5`
+`stimer 5::6.5`  
 5 hours and 6.5 seconds
 
-`stimer 5.5::`
+`stimer 5.5::`  
 5 hours and 30 minutes
 
-`stimer :45:`
+`stimer :45:`  
 45 minutes
