@@ -1,5 +1,5 @@
 # Simpletimer
-Simpletimer is a command line timer that features short, flexible syntax and basic output.
+Simpletimer is a command line timer that features short "fuzzy" syntax and basic output.
 ## Features:
 * Two "loosely-parsed" formats for specifying timer duration:
 	* "hms" format: #h#m#s
