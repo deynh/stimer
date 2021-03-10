@@ -1,5 +1,6 @@
 # stimer
-stimer stands for "simpletimer" and is a command line timer that features short "fuzzy" syntax and basic output.
+stimer stands for "simpletimer" and is a command line timer that features short "fuzzy" syntax and basic output.  
+![](https://i.ibb.co/Bgr7hkD/stimer.gif)
 ## Features:
 * Two "loosely-parsed" formats for specifying timer duration:
 	* "hms" format: #h#m#s
