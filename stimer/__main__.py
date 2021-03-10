@@ -11,7 +11,7 @@ from .confighandler import (
     remove_timer,
 )
 
-VERSION = "v0.1.0"
+VERSION = "v0.2.0"
 
 HELP_MSGS = {
     "duration": (
@@ -242,7 +242,7 @@ def main():
         print(HELP_MSGS["help_duration"])
         sys.exit(0)
     if args.version:
-        print("simpletimer " + VERSION)
+        print("stimer " + VERSION)
         sys.exit(0)
 
     try:
@@ -250,11 +250,6 @@ def main():
     except KeyboardInterrupt:
         sys.exit(0)
     sys.exit(0)
-
-
-def simpletimer():
-    print('hint: use alias "stimer" instead of "simpletimer"')
-    main()
 
 
 if __name__ == "__main__":

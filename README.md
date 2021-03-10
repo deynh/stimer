@@ -1,5 +1,5 @@
-# Simpletimer
-Simpletimer is a command line timer that features short "fuzzy" syntax and basic output.
+# stimer
+stimer stands for "simpletimer" and is a command line timer that features short "fuzzy" syntax and basic output.
 ## Features:
 * Two "loosely-parsed" formats for specifying timer duration:
 	* "hms" format: #h#m#s
@@ -11,9 +11,9 @@ Simpletimer is a command line timer that features short "fuzzy" syntax and basic
 * Decimal precision output determined by timer duration with the option to override
 * Save and load timers
 ## Installation:
-`pip install simpletimer`
+`pip install stimer`
 
-A config file is created at `$HOME/.config/simpletimer/stimer.conf`
+A config file is created at `$HOME/.config/stimer/stimer.conf`
 ## Usage:
 `stimer --help`:
 ```

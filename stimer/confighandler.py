@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from .core import STimer
 
-CONFIG_DIR = str(Path.home()) + "/.config/simpletimer/"
+CONFIG_DIR = str(Path.home()) + "/.config/stimer/"
 CONFIG_FILENAME = "stimer.conf"
 CONFIG_FILE = Path(CONFIG_DIR + CONFIG_FILENAME)
 CONFIG_SECTIONS = {
