@@ -11,7 +11,7 @@ from .confighandler import (
     remove_timer,
 )
 
-VERSION = "pre-release"
+VERSION = "v0.1.0"
 
 HELP_MSGS = {
     "duration": (
