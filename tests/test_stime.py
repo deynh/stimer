@@ -1,6 +1,6 @@
 import unittest
 
-from stimer.core import STimeData, STimer, parse_duration
+from simpletimer.core import STimeData, STimer, parse_duration
 
 
 class TestSTimeDataClock(unittest.TestCase):
