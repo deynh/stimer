@@ -11,7 +11,7 @@ Simpletimer is a command line timer that features short "fuzzy" syntax and basic
 * Decimal precision output determined by timer duration with the option to override
 * Save and load timers
 ## Installation:
-`pip install stimer`
+`pip install simpletimer`
 
 A config file is created at `$HOME/.config/simpletimer/stimer.conf`
 ## Usage:
