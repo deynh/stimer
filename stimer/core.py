@@ -141,15 +141,27 @@ class STimer:
 
     @property
     def precision(self):
-        if self._precision is None and self._duration:
-            if self._duration % 1 != 0:
+        if self._precision is None:
+            return self._precision_from_duration()
+        return self._precision
+
+    @property
+    def duration_precision(self):
+        duration_prec = self._precision_from_duration()
+        if self._precision is not None and duration_prec is not None:
+            return max(duration_prec, self._precision)
+        return duration_prec
+
+    def _precision_from_duration(self):
+        if self._duration:
+            if self._duration % 1 == 0:
+                return 0
+            else:
                 duration_str = str(self._duration)
                 splits = duration_str.split(".")
                 if len(splits) >= 2:
                     decimal_split = splits[1]
                     return len(decimal_split)
-            else:
-                return 0
         return self._precision
 
     @property
@@ -195,7 +207,7 @@ class STimer:
 
     def duration(self, time_format=TimeFormat.SECONDS, precision=None):
         if precision is None:
-            precision = self.precision
+            precision = self.duration_precision
         if self._duration is None:
             return None
         stime = STimeData(self._duration)
