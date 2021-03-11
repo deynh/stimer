@@ -6,7 +6,7 @@ stimer stands for "simpletimer" and is a command line timer that features short 
 	* "hms" format: #h#m#s
 	* "clock" format: ##:##:##  
 	See [duration examples](#duration-examples)
-* "UP" (timer) mode and "DOWN" (stopwatch) mode
+* "DOWN" (timer) mode and "UP" (stopwatch) mode
 * Alert sound (system sound) for timer end with option to disable
 * Progress bar output with option to disable
 * Decimal precision output determined by timer duration with the option to override
