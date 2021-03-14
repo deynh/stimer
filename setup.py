@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="stimer",
-    version="0.2.0",
+    version="0.2.1",
     author="Nicholas DeYarman",
     author_email="ndeyarman@tutanota.com",
     description=(

@@ -11,7 +11,7 @@ from .confighandler import (
     remove_timer,
 )
 
-VERSION = "v0.2.0"
+VERSION = "v0.2.1"
 
 HELP_MSGS = {
     "duration": (
@@ -97,7 +97,7 @@ def list_timers():
             elif options["widget_fmt"] == "full":
                 options_entries.append("full")
         if options["precision"] is not None:
-            options_entries.append("precision " + options["precision"])
+            options_entries.append("precision " + str(options["precision"]))
         options_str = ", ".join(options_entries)
         row.append(options_str)
         column_len[2] = max(len(row[2]), column_len[2])
